@@ -144,7 +144,7 @@ function connectWebSocket() {
     showConnectionStatus('Connecting...', true);
     
     // Create WebSocket connection
-    socket = new WebSocket('ws://localhost:8000/ws');
+    socket = new WebSocket('wss://websocket-project-3-gmii.onrender.com/ws');
     
     socket.onopen = () => {
         console.log('✓ WebSocket connected');
