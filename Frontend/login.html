@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket ChatterBox - Login</title>
+    <title>Infosys Chatter - Login</title>
     <style>
         * {
             box-sizing: border-box;
@@ -72,6 +72,7 @@
             flex: 1;
             padding: 10px;
             background: #f8f9fa;
+            color: #007CC7;
             border: none;
             cursor: pointer;
             font-size: 14px;
@@ -155,7 +156,7 @@
 <body>
     <div class="login-container">
         <div class="logo">I</div>
-        <h1>WebSocket ChatterBox</h1>
+        <h1>Infosys Chatter</h1>
         <div class="tabs">
             <button class="tab active" onclick="showForm('login')">Login</button>
             <button class="tab" onclick="showForm('signup')">Sign Up</button>
@@ -260,7 +261,16 @@
         function forgotPassword() {
             const email = prompt('Enter your email to reset password:');
             if (email && validateEmail(email)) {
-                alert('Password reset link sent to your email.');
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (!user) {
+                    alert('Email not found.');
+                    return;
+                }
+                const token = Math.random().toString(36).substr(2);
+                const resetData = { email, token, timestamp: Date.now() };
+                localStorage.setItem('resetToken', JSON.stringify(resetData));
+                window.location.href = `reset.html?token=${token}`;
             } else {
                 alert('Invalid email.');
             }
