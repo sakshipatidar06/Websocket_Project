@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket ChatterBox - Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 124, 199, 0.8), rgba(255, 255, 255, 0.1));
+            z-index: -1;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.6s ease-in;
+            backdrop-filter: blur(10px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #007CC7;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+        }
+        h1 {
+            color: #007CC7;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .tab.active {
+            background: #007CC7;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #007CC7;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        input:focus {
+            border-color: #007CC7;
+            outline: none;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .strength {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .strength.weak { color: #dc3545; }
+        .strength.medium { color: #ffc107; }
+        .strength.strong { color: #28a745; }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        .forgot {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .forgot a {
+            color: #007CC7;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .forgot a:hover {
+            text-decoration: underline;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #007CC7, #005A9E);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">I</div>
+        <h1>Infosys Chatter</h1>
+        <div class="tabs">
+            <button class="tab active" onclick="showForm('login')">Login</button>
+            <button class="tab" onclick="showForm('signup')">Sign Up</button>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+                <div class="error" id="email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+                <div class="error" id="password-error"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember">
+                <label for="remember">Remember Me</label>
+            </div>
+            <div class="forgot">
+                <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <form id="signup-form" style="display: none;">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+                <div class="error" id="name-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="email-signup">Email</label>
+                <input type="email" id="email-signup" required>
+                <div class="error" id="email-signup-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password-signup">Password</label>
+                <input type="password" id="password-signup" required oninput="checkPasswordStrength()">
+                <div class="strength" id="password-strength"></div>
+                <div class="error" id="password-signup-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" required>
+                <div class="error" id="confirm-password-error"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">I agree to the <a href="#" onclick="showTerms()">Terms & Conditions</a></label>
+                <div class="error" id="terms-error"></div>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <script>
+        let failedAttempts = 0;
+
+        function showForm(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="showForm('${type}')"]`).classList.add('active');
+            document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+            clearErrors();
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(e => e.innerText = '');
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function hashPassword(password) {
+            // Simple hash for demo (use bcrypt in real app)
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash.toString();
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password-signup').value;
+            const strength = document.getElementById('password-strength');
+            if (password.length < 8) {
+                strength.innerText = 'Weak';
+                strength.className = 'strength weak';
+            } else if (password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)) {
+                strength.innerText = 'Strong';
+                strength.className = 'strength strong';
+            } else {
+                strength.innerText = 'Medium';
+                strength.className = 'strength medium';
+            }
+        }
+
+        function forgotPassword() {
+            const email = prompt('Enter your email to reset password:');
+            if (email && validateEmail(email)) {
+                alert('Password reset link sent to your email.');
+            } else {
+                alert('Invalid email.');
+            }
+        }
+
+        function showTerms() {
+            alert('Terms & Conditions: By using this app, you agree to our privacy policy.');
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const remember = document.getElementById('remember').checked;
+            let valid = true;
+
+            if (!email) {
+                document.getElementById('email-error').innerText = 'Email is required.';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('email-error').innerText = 'Invalid email format.';
+                valid = false;
+            }
+
+            if (!password) {
+                document.getElementById('password-error').innerText = 'Password is required.';
+                valid = false;
+            } else if (password.length < 8) {
+                document.getElementById('password-error').innerText = 'Password must be at least 8 characters.';
+                valid = false;
+            }
+
+            if (valid) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (!user) {
+                    document.getElementById('email-error').innerText = 'Account does not exist.';
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        alert('Too many failed attempts. Try again later.');
+                        return;
+                    }
+                    return;
+                }
+                if (hashPassword(password) !== user.password) {
+                    document.getElementById('password-error').innerText = 'Wrong password.';
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        alert('Too many failed attempts. Try again later.');
+                        return;
+                    }
+                    return;
+                }
+                // Success
+                failedAttempts = 0;
+                const token = Math.random().toString(36).substr(2);
+                localStorage.setItem('sessionToken', token);
+                if (remember) {
+                    localStorage.setItem('email', email);
+                }
+                alert('Login successful!');
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email-signup').value.trim();
+            const password = document.getElementById('password-signup').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+            const terms = document.getElementById('terms').checked;
+            let valid = true;
+
+            if (!name) {
+                document.getElementById('name-error').innerText = 'Name is required.';
+                valid = false;
+            }
+
+            if (!email) {
+                document.getElementById('email-signup-error').innerText = 'Email is required.';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('email-signup-error').innerText = 'Invalid email format.';
+                valid = false;
+            }
+
+            if (!password) {
+                document.getElementById('password-signup-error').innerText = 'Password is required.';
+                valid = false;
+            } else if (password.length < 8 || !password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)) {
+                document.getElementById('password-signup-error').innerText = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.';
+                valid = false;
+            }
+
+            if (!confirmPassword) {
+                document.getElementById('confirm-password-error').innerText = 'Confirm password is required.';
+                valid = false;
+            } else if (password !== confirmPassword) {
+                document.getElementById('confirm-password-error').innerText = 'Passwords do not match.';
+                valid = false;
+            }
+
+            if (!terms) {
+                document.getElementById('terms-error').innerText = 'You must agree to the terms.';
+                valid = false;
+            }
+
+            if (valid) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                if (users.some(u => u.email === email)) {
+                    document.getElementById('email-signup-error').innerText = 'Email already registered.';
+                    return;
+                }
+                // Save user
+                users.push({ name, email, password: hashPassword(password) });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Sign up successful!');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Load remembered email
+        window.onload = function() {
+            const rememberedEmail = localStorage.getItem('email');
+            if (rememberedEmail) {
+                document.getElementById('email').value = rememberedEmail;
+                document.getElementById('remember').checked = true;
+            }
+        };
+    </script>
+</body>
+</html>
