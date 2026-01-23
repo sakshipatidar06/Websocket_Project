@@ -1,250 +1,113 @@
-"""
-Chatterbox - Real-time WebSocket Chat Application
-FastAPI Backend with Room Support, Typing Indicators, and Broadcasting
-"""
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime
-from typing import Dict, List
 import uvicorn
-import json
+from typing import List, Dict, Set
 
-app = FastAPI(title="Chatterbox Chat Server")
-
-# Enable CORS for frontend access
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+app = FastAPI()
 
 class ConnectionManager:
-    """Manages WebSocket connections, rooms, and message broadcasting"""
-    
     def __init__(self):
-        # WebSocket -> room mapping
         self.active_connections: Dict[WebSocket, str] = {}
-        # WebSocket -> username mapping
         self.usernames: Dict[WebSocket, str] = {}
-        # Room -> list of typing users
-        self.typing_users: Dict[str, List[str]] = {}
-    
+        self.message_history: Dict[str, List[Dict]] = {}
+        self.room_users: Dict[str, Set[str]] = {}
+
     async def connect(self, websocket: WebSocket, username: str, room: str):
-        """Register a new user connection to a specific room"""
         self.active_connections[websocket] = room
         self.usernames[websocket] = username
-        
-        # Broadcast join notification
-        await self.broadcast_system(
-            room, 
-            f"{username} joined the chat 👋",
-            websocket
-        )
-        
-        # Send room stats
-        await self.send_room_stats(room)
-    
+        if room not in self.room_users:
+            self.room_users[room] = set()
+        self.room_users[room].add(username)
+        await self.broadcast_system(room, f"{username} joined the {room} chat")
+
     def disconnect(self, websocket: WebSocket):
-        """Remove user from all tracking structures"""
         room = self.active_connections.get(websocket)
         username = self.usernames.get(websocket, "Someone")
-        
-        # Remove from typing indicators
-        if room and room in self.typing_users:
-            if username in self.typing_users[room]:
-                self.typing_users[room].remove(username)
-        
-        # Remove from connection maps
         self.active_connections.pop(websocket, None)
         self.usernames.pop(websocket, None)
-        
+        if room and username in self.room_users.get(room, set()):
+            self.room_users[room].remove(username)
+            if not self.room_users[room]:
+                del self.room_users[room]
         return username, room
-    
-    async def broadcast_room(self, room: str, data: dict, sender: WebSocket = None):
-        """Send message to all users in a specific room (optionally excluding sender)"""
-        for ws, user_room in self.active_connections.items():
-            if user_room == room:
-                # Exclude sender if specified
-                if sender is None or ws != sender:
-                    try:
-                        await ws.send_json(data)
-                    except:
-                        pass  # Handle disconnected clients gracefully
-    
-    async def broadcast_system(self, room: str, message: str, sender: WebSocket = None):
-        """Send system notification to all users in a room"""
-        await self.broadcast_room(
-            room,
-            {
-                "type": "system",
-                "message": message,
-                "timestamp": datetime.now().strftime("%H:%M")
-            },
-            sender
-        )
-    
-    async def send_room_stats(self, room: str):
-        """Send online user count to all users in a room"""
-        count = sum(1 for r in self.active_connections.values() if r == room)
-        await self.broadcast_room(
-            room,
-            {
-                "type": "stats",
-                "online": count
-            }
-        )
-    
-    async def handle_typing(self, room: str, username: str, is_typing: bool):
-        """Manage typing indicator state"""
-        if room not in self.typing_users:
-            self.typing_users[room] = []
-        
-        if is_typing:
-            if username not in self.typing_users[room]:
-                self.typing_users[room].append(username)
-        else:
-            if username in self.typing_users[room]:
-                self.typing_users[room].remove(username)
-        
-        # Broadcast current typing users
-        typing_list = [u for u in self.typing_users[room] if u != username]
-        
-        # Send to all users in room
-        for ws, user_room in self.active_connections.items():
-            if user_room == room:
-                current_user = self.usernames.get(ws)
-                # Send list excluding current user
-                display_list = [u for u in typing_list]
-                await ws.send_json({
-                    "type": "typing",
-                    "users": display_list
-                })
 
+    async def broadcast_room(self, room: str, data: Dict, exclude_sender: WebSocket = None):
+        if room not in self.message_history:
+            self.message_history[room] = []
+        self.message_history[room].append(data)
+        if len(self.message_history[room]) > 50:
+            self.message_history[room].pop(0)
+        
+        for ws, user_room in self.active_connections.items():
+            if user_room == room and ws != exclude_sender:
+                await ws.send_json(data)
+
+    async def broadcast_system(self, room: str, message: str):
+        await self.broadcast_room(room, {"type": "system", "message": message})
+
+    async def send_user_list(self, room: str):
+        users = list(self.room_users.get(room, set()))
+        await self.broadcast_room(room, {"type": "user_list", "users": users})
 
 manager = ConnectionManager()
 
-
 @app.get("/")
 async def root():
-    """Health check endpoint"""
-    return {
-        "status": "online",
-        "message": "Chatterbox WebSocket Chat Server",
-        "version": "1.0.0",
-        "features": [
-            "Real-time messaging",
-            "Multiple chat rooms",
-            "Typing indicators",
-            "Join/leave notifications"
-        ]
-    }
-
-
-@app.get("/stats")
-async def get_stats():
-    """Get current server statistics"""
-    rooms = {}
-    for ws, room in manager.active_connections.items():
-        rooms[room] = rooms.get(room, 0) + 1
-    
-    return {
-        "total_connections": len(manager.active_connections),
-        "rooms": rooms,
-        "active_rooms": len(rooms)
-    }
-
+    return {"message": "Websocket Chatterbox is running"}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """Main WebSocket endpoint for chat communication"""
     await websocket.accept()
-    print("✓ Client connected (WebSocket accepted)")
-    
-    username = "Anonymous"
-    room = "general"
-    
     try:
-        # First message MUST contain join info
         join_data = await websocket.receive_json()
-        username = join_data.get("username", "Anonymous").strip() or "Anonymous"
-        room = join_data.get("room", "general").strip() or "general"
-        
-        print(f"✓ User '{username}' joined room '{room}'")
-        
-        # Register connection
+        username = join_data.get("username", "Anonymous")
+        room = join_data.get("room", "general")
         await manager.connect(websocket, username, room)
-        
-        # Main message loop
+
         while True:
             data = await websocket.receive_json()
             event_type = data.get("type")
-            
+
             if event_type == "chat":
-                # Broadcast chat message
-                message_text = data.get("message", "").strip()
-                if message_text:
-                    print(f"[{room}] {username}: {message_text}")
+                message = data.get("message", "").strip()
+                if message:
                     await manager.broadcast_room(
                         room,
-                        {
-                            "type": "chat",
-                            "username": username,
-                            "message": message_text,
-                            "timestamp": datetime.now().strftime("%H:%M")
-                        },
+                        {"type": "chat", "username": username, "message": message},
                         websocket
                     )
-            
             elif event_type == "typing":
-                # User started typing
-                await manager.handle_typing(room, username, True)
-            
+                await manager.broadcast_room(
+                    room,
+                    {"type": "typing", "username": username},
+                    websocket
+                )
             elif event_type == "stop_typing":
-                # User stopped typing
-                await manager.handle_typing(room, username, False)
-    
-    except WebSocketDisconnect:
-        # Clean disconnect
-        left_user, left_room = manager.disconnect(websocket)
-        print(f"✗ User '{left_user}' disconnected from '{left_room}'")
-        
-        if left_room:
-            await manager.broadcast_system(
-                left_room,
-                f"{left_user} left the chat 👋"
-            )
-            await manager.send_room_stats(left_room)
-    
-    except Exception as e:
-        # Unexpected error
-        left_user, left_room = manager.disconnect(websocket)
-        print(f"✗ Error with user '{left_user}': {e}")
-        
-        if left_room:
-            await manager.broadcast_system(
-                left_room,
-                f"{left_user} left the chat (connection error) ⚠️"
-            )
-            await manager.send_room_stats(left_room)
+                await manager.broadcast_room(
+                    room,
+                    {"type": "stop_typing", "username": username},
+                    websocket
+                )
+            elif event_type == "switch_room":
+                old_room = room
+                room = data.get("new_room", room)
+                if old_room != room:
+                    username = manager.usernames.get(websocket)
+                    if username in manager.room_users.get(old_room, set()):
+                        manager.room_users[old_room].remove(username)
+                    manager.active_connections[websocket] = room
+                    if room not in manager.room_users:
+                        manager.room_users[room] = set()
+                    manager.room_users[room].add(username)
+                    await manager.broadcast_system(old_room, f"{username} left the {old_room} chat")
+                    await manager.send_user_list(old_room)
+                    await manager.broadcast_system(room, f"{username} joined the {room} chat")
+                    await manager.send_user_list(room)
 
+    except WebSocketDisconnect:
+        username, room = manager.disconnect(websocket)
+        if room:
+            await manager.broadcast_system(room, f"{username} left the {room} chat")
+            await manager.send_user_list(room)
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("🚀 Starting Chatterbox WebSocket Server")
-    print("=" * 50)
-    print("Server: http://localhost:8000")
-    print("WebSocket: ws://localhost:8000/ws")
-    print("Stats: http://localhost:8000/stats")
-    print("=" * 50)
-    
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    uvicorn.run("app:app", host="localhost", port=8000, reload=True)
