@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Infosys Chatter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 124, 199, 0.8), rgba(255, 255, 255, 0.1));
+            z-index: -1;
+        }
+        .reset-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.6s ease-in;
+            backdrop-filter: blur(10px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #007CC7;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+        }
+        h1 {
+            color: #007CC7;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #007CC7;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        input:focus {
+            border-color: #007CC7;
+            outline: none;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .strength {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .strength.weak { color: #dc3545; }
+        .strength.medium { color: #ffc107; }
+        .strength.strong { color: #28a745; }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #007CC7, #005A9E);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .nav {
+            margin-top: 20px;
+        }
+        .nav a {
+            color: #007CC7;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-container">
+        <div class="logo">I</div>
+        <h1>Reset Password</h1>
+        <form id="reset-form">
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" required oninput="checkPasswordStrength()">
+                <div class="strength" id="password-strength"></div>
+                <div class="error" id="password-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" required>
+                <div class="error" id="confirm-error"></div>
+            </div>
+            <button type="submit">Reset Password</button>
+        </form>
+        <div class="nav">
+            <a href="login.html">Back to Login</a>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('new-password').value;
+            const strength = document.getElementById('password-strength');
+            if (password.length < 8) {
+                strength.innerText = 'Weak';
+                strength.className = 'strength weak';
+            } else if (password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)) {
+                strength.innerText = 'Strong';
+                strength.className = 'strength strong';
+            } else {
+                strength.innerText = 'Medium';
+                strength.className = 'strength medium';
+            }
+        }
+
+        function hashPassword(password) {
+            // Simple hash for demo (use bcrypt in real app)
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash.toString();
+        }
+
+        document.getElementById('reset-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('new-password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+            let valid = true;
+
+            if (!newPassword) {
+                document.getElementById('password-error').innerText = 'Password is required.';
+                valid = false;
+            } else if (newPassword.length < 8 || !newPassword.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)) {
+                document.getElementById('password-error').innerText = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.';
+                valid = false;
+            }
+
+            if (!confirmPassword) {
+                document.getElementById('confirm-error').innerText = 'Confirm password is required.';
+                valid = false;
+            } else if (newPassword !== confirmPassword) {
+                document.getElementById('confirm-error').innerText = 'Passwords do not match.';
+                valid = false;
+            }
+
+            if (valid) {
+                const resetData = JSON.parse(localStorage.getItem('resetToken') || '{}');
+                if (!resetData.token || resetData.token !== token || (Date.now() - resetData.timestamp) > 3600000) { // 1 hour expiry
+                    alert('Invalid or expired token.');
+                    return;
+                }
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const userIndex = users.findIndex(u => u.email === resetData.email);
+                if (userIndex !== -1) {
+                    users[userIndex].password = hashPassword(newPassword);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    localStorage.removeItem('resetToken');
+                    alert('Password reset successful!');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('User not found.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
