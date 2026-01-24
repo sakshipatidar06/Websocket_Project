@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket ChatterBox - Select Room</title>
+    <title>Infosys Chatter - Login</title>
     <style>
         * {
             box-sizing: border-box;
@@ -32,13 +32,13 @@
             background: linear-gradient(135deg, rgba(0, 124, 199, 0.8), rgba(255, 255, 255, 0.1));
             z-index: -1;
         }
-        .landing {
+        .login-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 400px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            padding: 30px;
             text-align: center;
             animation: fadeIn 0.6s ease-in;
             backdrop-filter: blur(10px);
@@ -48,8 +48,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .logo {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             background: #007CC7;
             border-radius: 50%;
             margin: 0 auto 20px;
@@ -58,66 +58,87 @@
             justify-content: center;
             font-weight: bold;
             color: white;
-            font-size: 28px;
+            font-size: 24px;
         }
         h1 {
             color: #007CC7;
-            margin-bottom: 10px;
-            font-size: 28px;
+            margin-bottom: 20px;
         }
-        p {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 16px;
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
         }
-        .user-info {
-            margin-bottom: 30px;
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: #f8f9fa;
+            color: #007CC7;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
         }
-        .user-info input {
+        .tab.active {
+            background: #007CC7;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #007CC7;
+        }
+        input {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: 1px solid #ced4da;
             border-radius: 10px;
-            font-size: 16px;
-            background: white;
-            transition: border-color 0.3s;
+            font-size: 14px;
         }
-        .user-info input:focus {
+        input:focus {
             border-color: #007CC7;
             outline: none;
         }
-        .rooms {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
         }
-        .room-btn {
-            padding: 20px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            color: white;
+        .strength {
+            font-size: 12px;
+            margin-top: 5px;
         }
-        .room-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        .strength.weak { color: #dc3545; }
+        .strength.medium { color: #ffc107; }
+        .strength.strong { color: #28a745; }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        .room-btn.selected {
-            border: 3px solid #fff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
         }
-        .general { background: linear-gradient(135deg, #007CC7, #005A9E); }
-        .tech { background: linear-gradient(135deg, #28a745, #20c997); }
-        .fun { background: linear-gradient(135deg, #fd7e14, #e8590c); }
-        .hr { background: linear-gradient(135deg, #6f42c1, #5a32a3); }
-        .projects { background: linear-gradient(135deg, #dc3545, #c82333); }
-        .join-btn {
+        .forgot {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        .forgot a {
+            color: #007CC7;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .forgot a:hover {
+            text-decoration: underline;
+        }
+        button {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             background: linear-gradient(135deg, #007CC7, #005A9E);
             color: white;
             border: none;
@@ -127,75 +148,261 @@
             font-weight: 600;
             transition: transform 0.2s;
         }
-        .join-btn:hover {
+        button:hover {
             transform: translateY(-2px);
-        }
-        .nav {
-            margin-top: 20px;
-        }
-        .nav button {
-            padding: 10px 20px;
-            background: #f8f9fa;
-            color: #007CC7;
-            border: 1px solid #007CC7;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        .nav button:hover {
-            background: #007CC7;
-            color: white;
-        }
-        @media (max-width: 480px) {
-            .landing {
-                width: 95%;
-                padding: 20px;
-            }
-            .rooms {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="landing">
+    <div class="login-container">
         <div class="logo">I</div>
         <h1>WebSocket ChatterBox</h1>
-        <p>Secure & Real-Time Collaboration Platform</p>
-        <div class="user-info">
-            <input type="text" id="username" placeholder="Enter your name" required>
+        <div class="tabs">
+            <button class="tab active" onclick="showForm('login')">Login</button>
+            <button class="tab" onclick="showForm('signup')">Sign Up</button>
         </div>
-        <div class="rooms">
-            <button class="room-btn general" onclick="selectRoom('general')">General</button>
-            <button class="room-btn tech" onclick="selectRoom('tech')">Tech</button>
-            <button class="room-btn fun" onclick="selectRoom('fun')">Fun</button>
-            <button class="room-btn hr" onclick="selectRoom('hr')">HR</button>
-            <button class="room-btn projects" onclick="selectRoom('projects')">Projects</button>
-        </div>
-        <button class="join-btn" onclick="joinChat()">Join Chat</button>
-        <div class="nav">
-            <button onclick="window.location.href='login.html'">Back to Login</button>
-        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+                <div class="error" id="email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+                <div class="error" id="password-error"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember">
+                <label for="remember">Remember Me</label>
+            </div>
+            <div class="forgot">
+                <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <form id="signup-form" style="display: none;">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+                <div class="error" id="name-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="email-signup">Email</label>
+                <input type="email" id="email-signup" required>
+                <div class="error" id="email-signup-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password-signup">Password</label>
+                <input type="password" id="password-signup" required oninput="checkPasswordStrength()">
+                <div class="strength" id="password-strength"></div>
+                <div class="error" id="password-signup-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" required>
+                <div class="error" id="confirm-password-error"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">I agree to the <a href="#" onclick="showTerms()">Terms & Conditions</a></label>
+                <div class="error" id="terms-error"></div>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
     </div>
 
     <script>
-        let selectedRoom = 'general';
+        let failedAttempts = 0;
 
-        function selectRoom(room) {
-            selectedRoom = room;
-            document.querySelectorAll('.room-btn').forEach(btn => btn.classList.remove('selected'));
-            document.querySelector(`.${room}`).classList.add('selected');
+        function showForm(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="showForm('${type}')"]`).classList.add('active');
+            document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+            clearErrors();
         }
 
-        function joinChat() {
-            const username = document.getElementById('username').value.trim();
-            if (!username) {
-                alert('Please enter your name to proceed.');
-                return;
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(e => e.innerText = '');
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function hashPassword(password) {
+            // Simple hash for demo (use bcrypt in real app)
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
             }
-            window.location.href = `chat.html?username=${encodeURIComponent(username)}&room=${selectedRoom}`;
+            return hash.toString();
         }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password-signup').value;
+            const strength = document.getElementById('password-strength');
+            if (password.length < 8) {
+                strength.innerText = 'Weak';
+                strength.className = 'strength weak';
+            } else if (password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)) {
+                strength.innerText = 'Strong';
+                strength.className = 'strength strong';
+            } else {
+                strength.innerText = 'Medium';
+                strength.className = 'strength medium';
+            }
+        }
+
+        function forgotPassword() {
+            const email = prompt('Enter your email to reset password:');
+            if (email && validateEmail(email)) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (!user) {
+                    alert('Email not found.');
+                    return;
+                }
+                const token = Math.random().toString(36).substr(2);
+                const resetData = { email, token, timestamp: Date.now() };
+                localStorage.setItem('resetToken', JSON.stringify(resetData));
+                window.location.href = `reset.html?token=${token}`;
+            } else {
+                alert('Invalid email.');
+            }
+        }
+
+        function showTerms() {
+            alert('Terms & Conditions: By using this app, you agree to our privacy policy.');
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const remember = document.getElementById('remember').checked;
+            let valid = true;
+
+            if (!email) {
+                document.getElementById('email-error').innerText = 'Email is required.';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('email-error').innerText = 'Invalid email format.';
+                valid = false;
+            }
+
+            if (!password) {
+                document.getElementById('password-error').innerText = 'Password is required.';
+                valid = false;
+            } else if (password.length < 8) {
+                document.getElementById('password-error').innerText = 'Password must be at least 8 characters.';
+                valid = false;
+            }
+
+            if (valid) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (!user) {
+                    document.getElementById('email-error').innerText = 'Account does not exist.';
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        alert('Too many failed attempts. Try again later.');
+                        return;
+                    }
+                    return;
+                }
+                if (hashPassword(password) !== user.password) {
+                    document.getElementById('password-error').innerText = 'Wrong password.';
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        alert('Too many failed attempts. Try again later.');
+                        return;
+                    }
+                    return;
+                }
+                // Success
+                failedAttempts = 0;
+                const token = Math.random().toString(36).substr(2);
+                localStorage.setItem('sessionToken', token);
+                if (remember) {
+                    localStorage.setItem('email', email);
+                }
+                alert('Login successful!');
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email-signup').value.trim();
+            const password = document.getElementById('password-signup').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+            const terms = document.getElementById('terms').checked;
+            let valid = true;
+
+            if (!name) {
+                document.getElementById('name-error').innerText = 'Name is required.';
+                valid = false;
+            }
+
+            if (!email) {
+                document.getElementById('email-signup-error').innerText = 'Email is required.';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('email-signup-error').innerText = 'Invalid email format.';
+                valid = false;
+            }
+
+            if (!password) {
+                document.getElementById('password-signup-error').innerText = 'Password is required.';
+                valid = false;
+            } else if (password.length < 8 || !password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)) {
+                document.getElementById('password-signup-error').innerText = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.';
+                valid = false;
+            }
+
+            if (!confirmPassword) {
+                document.getElementById('confirm-password-error').innerText = 'Confirm password is required.';
+                valid = false;
+            } else if (password !== confirmPassword) {
+                document.getElementById('confirm-password-error').innerText = 'Passwords do not match.';
+                valid = false;
+            }
+
+            if (!terms) {
+                document.getElementById('terms-error').innerText = 'You must agree to the terms.';
+                valid = false;
+            }
+
+            if (valid) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                if (users.some(u => u.email === email)) {
+                    document.getElementById('email-signup-error').innerText = 'Email already registered.';
+                    return;
+                }
+                // Save user
+                users.push({ name, email, password: hashPassword(password) });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Sign up successful!');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Load remembered email
+        window.onload = function() {
+            const rememberedEmail = localStorage.getItem('email');
+            if (rememberedEmail) {
+                document.getElementById('email').value = rememberedEmail;
+                document.getElementById('remember').checked = true;
+            }
+        };
     </script>
 </body>
 </html>
