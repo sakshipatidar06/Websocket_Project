@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infosys Chatter - Login</title>
+    <title>Infosys Chatter - Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -11,16 +12,16 @@
             padding: 0;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
             background-size: cover;
-            background-attachment: fixed;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             color: #333;
             position: relative;
+            overflow: hidden;
         }
         body::before {
             content: '';
@@ -29,88 +30,84 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(0, 124, 199, 0.8), rgba(255, 255, 255, 0.1));
+            background: rgba(0, 0, 0, 0.4);
             z-index: -1;
         }
-        .login-container {
+        .signup-container {
             width: 100%;
-            max-width: 400px;
+            max-width: 450px; /* Login page jaisa width */
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            padding: 30px;
+            padding: 25px; /* Height vahi rehne diya */
             text-align: center;
-            animation: fadeIn 0.6s ease-in;
-            backdrop-filter: blur(10px);
+            animation: slideIn 0.8s ease-out;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .logo {
             width: 60px;
             height: 60px;
-            background: #007CC7;
+            background: linear-gradient(135deg, #007CC7, #005A9E);
             border-radius: 50%;
-            margin: 0 auto 20px;
+            margin: 0 auto 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             color: white;
             font-size: 24px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         h1 {
             color: #007CC7;
             margin-bottom: 20px;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .tab {
-            flex: 1;
-            padding: 10px;
-            background: #f8f9fa;
-            color: #007CC7;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        .tab.active {
-            background: #007CC7;
-            color: white;
+            font-size: 20px;
+            font-weight: 600;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: left;
+            position: relative;
         }
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             font-weight: 600;
             color: #007CC7;
+            font-size: 12px;
         }
         input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ced4da;
-            border-radius: 10px;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             font-size: 14px;
+            transition: all 0.3s;
         }
         input:focus {
             border-color: #007CC7;
             outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 124, 199, 0.1);
+        }
+        .form-group i {
+            position: absolute;
+            right: 10px;
+            top: 35px;
+            color: #007CC7;
         }
         .error {
             color: #dc3545;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 10px;
+            margin-top: 3px;
         }
         .strength {
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 10px;
+            margin-top: 3px;
         }
         .strength.weak { color: #dc3545; }
         .strength.medium { color: #ffc107; }
@@ -118,89 +115,108 @@
         .checkbox-group {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .checkbox-group input {
             width: auto;
-            margin-right: 10px;
-        }
-        .forgot {
-            text-align: right;
-            margin-bottom: 15px;
-        }
-        .forgot a {
-            color: #007CC7;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .forgot a:hover {
-            text-decoration: underline;
+            margin-right: 8px;
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: linear-gradient(135deg, #007CC7, #005A9E);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        .nav {
+            margin-top: 12px;
+        }
+        .nav a {
+            color: #007CC7;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        /* Responsive Image */
+        @media (max-width: 1024px) {
+            body {
+                background-attachment: scroll;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+                background-size: cover;
+            }
+            .signup-container {
+                width: 90%;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 18px;
+            }
+            button {
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .signup-container {
+                width: 95%;
+                padding: 15px;
+            }
+            h1 {
+                font-size: 16px;
+            }
+            input {
+                font-size: 12px;
+            }
+            button {
+                font-size: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="signup-container">
         <div class="logo">I</div>
-        <h1>WebSocket ChatterBox</h1>
-        <div class="tabs">
-            <button class="tab active" onclick="showForm('login')">Login</button>
-            <button class="tab" onclick="showForm('signup')">Sign Up</button>
-        </div>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required>
-                <div class="error" id="email-error"></div>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required>
-                <div class="error" id="password-error"></div>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="remember">
-                <label for="remember">Remember Me</label>
-            </div>
-            <div class="forgot">
-                <a href="#" onclick="forgotPassword()">Forgot Password?</a>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-        <form id="signup-form" style="display: none;">
+        <h1>Sign Up for Websocket </h1>
+        <form id="signup-form">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" required>
+                <i class="fas fa-user"></i>
                 <div class="error" id="name-error"></div>
             </div>
             <div class="form-group">
                 <label for="email-signup">Email</label>
                 <input type="email" id="email-signup" required>
+                <i class="fas fa-envelope"></i>
                 <div class="error" id="email-signup-error"></div>
             </div>
             <div class="form-group">
                 <label for="password-signup">Password</label>
                 <input type="password" id="password-signup" required oninput="checkPasswordStrength()">
+                <i class="fas fa-lock"></i>
                 <div class="strength" id="password-strength"></div>
                 <div class="error" id="password-signup-error"></div>
             </div>
             <div class="form-group">
                 <label for="confirm-password">Confirm Password</label>
                 <input type="password" id="confirm-password" required>
+                <i class="fas fa-lock"></i>
                 <div class="error" id="confirm-password-error"></div>
             </div>
             <div class="checkbox-group">
@@ -210,23 +226,12 @@
             </div>
             <button type="submit">Sign Up</button>
         </form>
+        <div class="nav">
+            <a href="login.html">Already have an account? Login</a>
+        </div>
     </div>
 
     <script>
-        let failedAttempts = 0;
-
-        function showForm(type) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[onclick="showForm('${type}')"]`).classList.add('active');
-            document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
-            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
-            clearErrors();
-        }
-
-        function clearErrors() {
-            document.querySelectorAll('.error').forEach(e => e.innerText = '');
-        }
-
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
@@ -258,84 +263,9 @@
             }
         }
 
-        function forgotPassword() {
-            const email = prompt('Enter your email to reset password:');
-            if (email && validateEmail(email)) {
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const user = users.find(u => u.email === email);
-                if (!user) {
-                    alert('Email not found.');
-                    return;
-                }
-                const token = Math.random().toString(36).substr(2);
-                const resetData = { email, token, timestamp: Date.now() };
-                localStorage.setItem('resetToken', JSON.stringify(resetData));
-                window.location.href = `reset.html?token=${token}`;
-            } else {
-                alert('Invalid email.');
-            }
-        }
-
         function showTerms() {
             alert('Terms & Conditions: By using this app, you agree to our privacy policy.');
         }
-
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            clearErrors();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const remember = document.getElementById('remember').checked;
-            let valid = true;
-
-            if (!email) {
-                document.getElementById('email-error').innerText = 'Email is required.';
-                valid = false;
-            } else if (!validateEmail(email)) {
-                document.getElementById('email-error').innerText = 'Invalid email format.';
-                valid = false;
-            }
-
-            if (!password) {
-                document.getElementById('password-error').innerText = 'Password is required.';
-                valid = false;
-            } else if (password.length < 8) {
-                document.getElementById('password-error').innerText = 'Password must be at least 8 characters.';
-                valid = false;
-            }
-
-            if (valid) {
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const user = users.find(u => u.email === email);
-                if (!user) {
-                    document.getElementById('email-error').innerText = 'Account does not exist.';
-                    failedAttempts++;
-                    if (failedAttempts >= 3) {
-                        alert('Too many failed attempts. Try again later.');
-                        return;
-                    }
-                    return;
-                }
-                if (hashPassword(password) !== user.password) {
-                    document.getElementById('password-error').innerText = 'Wrong password.';
-                    failedAttempts++;
-                    if (failedAttempts >= 3) {
-                        alert('Too many failed attempts. Try again later.');
-                        return;
-                    }
-                    return;
-                }
-                // Success
-                failedAttempts = 0;
-                const token = Math.random().toString(36).substr(2);
-                localStorage.setItem('sessionToken', token);
-                if (remember) {
-                    localStorage.setItem('email', email);
-                }
-                alert('Login successful!');
-                window.location.href = 'index.html';
-            }
-        });
 
         document.getElementById('signup-form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -391,18 +321,13 @@
                 users.push({ name, email, password: hashPassword(password) });
                 localStorage.setItem('users', JSON.stringify(users));
                 alert('Sign up successful!');
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
             }
         });
 
-        // Load remembered email
-        window.onload = function() {
-            const rememberedEmail = localStorage.getItem('email');
-            if (rememberedEmail) {
-                document.getElementById('email').value = rememberedEmail;
-                document.getElementById('remember').checked = true;
-            }
-        };
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(e => e.innerText = '');
+        }
     </script>
 </body>
 </html>

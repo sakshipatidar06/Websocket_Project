@@ -1,0 +1,338 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infosys Chatter - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #007CC7, #005A9E);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #007CC7;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #007CC7;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            border-color: #007CC7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 124, 199, 0.1);
+        }
+        .form-group i {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            color: #007CC7;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        .forgot {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .forgot a {
+            color: #007CC7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .forgot a:hover {
+            text-decoration: underline;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #007CC7, #005A9E);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        .nav {
+            margin-top: 20px;
+        }
+        .nav a {
+            color: #007CC7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        /* Responsive Image */
+        @media (max-width: 1024px) {
+            body {
+                background-attachment: scroll;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+                background-size: cover;
+            }
+            .login-container {
+                width: 90%;
+                padding: 30px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            button {
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .login-container {
+                width: 95%;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            input {
+                font-size: 14px;
+            }
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">I</div>
+        <h1>Login to Websocket </h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+                <i class="fas fa-envelope"></i>
+                <div class="error" id="email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+                <i class="fas fa-lock"></i>
+                <div class="error" id="password-error"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember">
+                <label for="remember">Remember Me</label>
+            </div>
+            <div class="forgot">
+                <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="nav">
+            <a href="index.html">Don't have an account? Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        let failedAttempts = 0;
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function hashPassword(password) {
+            // Simple hash for demo (use bcrypt in real app)
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash.toString();
+        }
+
+        function forgotPassword() {
+            const email = prompt('Enter your email to reset password:');
+            if (email && validateEmail(email)) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (!user) {
+                    alert('Email not found.');
+                    return;
+                }
+                const token = Math.random().toString(36).substr(2);
+                const resetData = { email, token, timestamp: Date.now() };
+                localStorage.setItem('resetToken', JSON.stringify(resetData));
+                window.location.href = `reset.html?token=${token}`;
+            } else {
+                alert('Invalid email.');
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const remember = document.getElementById('remember').checked;
+            let valid = true;
+
+            if (!email) {
+                document.getElementById('email-error').innerText = 'Email is required.';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('email-error').innerText = 'Invalid email format.';
+                valid = false;
+            }
+
+            if (!password) {
+                document.getElementById('password-error').innerText = 'Password is required.';
+                valid = false;
+            } else if (password.length < 8) {
+                document.getElementById('password-error').innerText = 'Password must be at least 8 characters.';
+                valid = false;
+            }
+
+            if (valid) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email);
+                if (!user) {
+                    document.getElementById('email-error').innerText = 'Account does not exist.';
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        alert('Too many failed attempts. Try again later.');
+                        return;
+                    }
+                    return;
+                }
+                if (hashPassword(password) !== user.password) {
+                    document.getElementById('password-error').innerText = 'Wrong password.';
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        alert('Too many failed attempts. Try again later.');
+                        return;
+                    }
+                    return;
+                }
+                // Success
+                failedAttempts = 0;
+                const token = Math.random().toString(36).substr(2);
+                localStorage.setItem('sessionToken', token);
+                if (remember) {
+                    localStorage.setItem('email', email);
+                }
+                alert('Login successful!');
+                window.location.href = 'user.html';
+            }
+        });
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(e => e.innerText = '');
+        }
+
+        // Load remembered email
+        window.onload = function() {
+            const rememberedEmail = localStorage.getItem('email');
+            if (rememberedEmail) {
+                document.getElementById('email').value = rememberedEmail;
+                document.getElementById('remember').checked = true;
+            }
+        };
+    </script>
+</body>
+</html>
